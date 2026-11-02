@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.4.3
+
+### Fixed
+
+- On the payment step, the box of a gift card stayed ticked after « Remove my gift cards from this order » took the card off, and the next click on it showed the opposite of what it did. Live keeps, across every later render, the state of a field the buyer changed that is bound to no model. The box now acts on its `input` event and stops it there, so the component never holds it and every render draws the box as the cart has it. `GiftCardPaymentPartTest::testACardOfTheBuyerIsTickedThenUntickedFromItsCheckbox` covers it.
+
 ## 3.4.2
 
 ### Fixed
