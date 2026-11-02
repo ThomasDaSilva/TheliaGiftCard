@@ -134,9 +134,14 @@ final class GiftCardPaymentPartTest extends WebIntegrationTestCase
         $giftCard = $this->giftCard(['amount' => '30', 'beneficiaryCustomerId' => $customer->getId()]);
 
         $component = $this->component();
-        $checkbox = $component->filter(\sprintf('input[type=checkbox][data-live-action-param="toggle"][data-live-gift-card-id-param="%d"]', $giftCard->getId()));
+        $checkbox = $component->filter(\sprintf('input[type=checkbox][data-live-gift-card-id-param="%d"]', $giftCard->getId()));
         self::assertCount(1, $checkbox, 'One checkbox per card, carrying the id of the card as the argument of the live action.');
         self::assertNull($checkbox->attr('checked'));
+        // Live keeps, across every later render, the state of a field the buyer changed that is
+        // bound to no model, unless its `input` event never reaches the component: without the
+        // stop, the box stays ticked after "Remove my gift cards" took the card off.
+        self::assertSame('input->live#action', $checkbox->attr('data-action'), 'The box acts on its input event.');
+        self::assertSame('stop|toggle', $checkbox->attr('data-live-action-param'), 'The input event of the box stops there.');
 
         $ticked = $this->liveAction('toggle', ['giftCardId' => (int) $giftCard->getId()]);
 

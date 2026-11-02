@@ -34,12 +34,17 @@
                         {%- if card.expirationDate %} ({{ 'valid until %date%'|theliagiftcard_trans({'%date%': card.expirationDate|format_date('short', locale: this.langCode)}) }}){% endif -%}
                         {%- if onCart %}, {{ '%amount% used on this order'|theliagiftcard_trans({'%amount%': card.amountOnCart|format_currency(this.currencyCode, locale: this.langCode)}) }}{% endif -%}
                     {% endset %}
+                    {# Live keeps, across every later render, the state of a field the buyer
+                       changed that is bound to no model: the box would stay ticked after
+                       "Remove my gift cards" took the card off. Stopping its `input` event
+                       keeps it from the component, and every render draws the box as the cart
+                       has it. #}
                     {{ component('Fields:Checkbox:Base', {
                         label: label|trim,
                         'input:id': 'gift-card-' ~ card.id,
                         'input:checked': onCart,
-                        'input:data-action': 'change->live#action',
-                        'input:data-live-action-param': 'toggle',
+                        'input:data-action': 'input->live#action',
+                        'input:data-live-action-param': 'stop|toggle',
                         'input:data-live-gift-card-id-param': card.id,
                     }) }}
                 {% endfor %}
