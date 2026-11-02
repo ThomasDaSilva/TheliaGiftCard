@@ -220,6 +220,28 @@ final class GiftCardPaymentPartTest extends WebIntegrationTestCase
         }
     }
 
+    /**
+     * The step that reads the payment again draws this component again, and the message of the
+     * refusal is not live state: told of a change that did not happen, the step took the message
+     * away a moment after the buyer saw it.
+     */
+    public function testARefusedActionKeepsItsMessageAndTellsNobody(): void
+    {
+        $this->cartWorth100();
+        $othersCard = $this->giftCard(['amount' => '30', 'beneficiaryCustomerId' => $this->factory->customer($this->factory->customerTitle())->getId()]);
+
+        $responses = [
+            'applyCode' => $this->liveAction('applyCode', [], ['code' => 'NOSUCHCODE']),
+            'toggle' => $this->liveAction('toggle', ['giftCardId' => (int) $othersCard->getId()]),
+        ];
+
+        foreach ($responses as $action => $response) {
+            self::assertNotSame([], $response->filter('[role=alert], .Input-error')->each(static fn (Crawler $node): string => trim($node->text())), $action);
+            self::assertStringNotContainsString('PAYMENT_PARTS_CHANGED', $response->html(), $action);
+            self::assertStringNotContainsString('syncSummary', $response->html(), $action);
+        }
+    }
+
     public function testACodeThatIsNotAUsableOneIsRefusedWithoutShowingTheBalanceOfACardOfSomeoneElse(): void
     {
         [$cart, $customer] = $this->cartWorth100();

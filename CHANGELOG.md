@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.4.2
+
+### Fixed
+
+- On the payment step, the message of a refused gift card code (or of a card that cannot be ticked) went away about a second after it showed. The component told the step and the summary to draw themselves again although nothing had changed on the cart, and the step drew the component again without the message. A refused action now tells nobody; `GiftCardPaymentPartTest::testARefusedActionKeepsItsMessageAndTellsNobody` covers it.
+
 ## 3.4.1
 
 ### Fixed

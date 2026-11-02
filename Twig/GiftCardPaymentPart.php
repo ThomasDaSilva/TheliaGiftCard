@@ -55,7 +55,9 @@ final class GiftCardPaymentPart
 
     /**
      * Why the last action was refused, a code the template turns into a sentence: `code`,
-     * `attempts` or `refused`. Not live state: gone with the next action.
+     * `attempts` or `refused`. Not live state: gone with the next action. A refused action
+     * changes nothing on the cart and tells nobody: the step drawing itself again would draw
+     * this component again, without the message.
      */
     public ?string $error = null;
 
@@ -129,6 +131,8 @@ final class GiftCardPaymentPart
             $this->cartSelection->toggle($customer, $this->cartFacade->getOrCreateFromSession(), $giftCardId);
         } catch (GiftCardSpendRefusedException) {
             $this->error = 'refused';
+
+            return;
         }
 
         $this->tellTheStep();
@@ -154,8 +158,12 @@ final class GiftCardPaymentPart
             $this->code = '';
         } catch (GiftCardTooManyCodeAttemptsException) {
             $this->error = 'attempts';
+
+            return;
         } catch (GiftCardSpendRefusedException $refusal) {
             $this->error = GiftCardSpendRefusedException::CODE_NOT_USABLE === $refusal->getCode() ? 'code' : 'refused';
+
+            return;
         }
 
         $this->tellTheStep();
