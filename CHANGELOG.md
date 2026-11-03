@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.4.4
+
+### Fixed
+
+- On the order page of the back office, the total paid with gift cards was a level 3 heading, much larger than every other total of the page, and sat inside the list of cards, which only allows list items. It is now bold text at the size of the order totals, under the list; the list is left out when no card was spent on the order. `GiftCardBackOfficeTest::testTheTotalOfTheOrderBlockIsBoldTextOfTheBodySize` covers it.
+
 ## 3.4.3
 
 ### Fixed

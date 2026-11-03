@@ -3,20 +3,22 @@
     <div class="card-header">
         {{ 'Order Gift-Card amount usage for this order'|trans({}, 'theliagiftcard.bo.default-twig') }}
     </div>
-    <div class="card-body table-responsive">
-        <ul class="list-unstyled">
-            {% for line in lines %}
-                <li>
-                    {{ 'Montant Carte Cadeau %code : %amount'|trans({
-                        '%code': line.code,
-                        '%amount': line.spend_amount|number_format(2, '.', ' ') ~ ' ' ~ currency_symbol
-                    }, 'theliagiftcard') }}
-                </li>
-            {% endfor %}
-            <h3>
-                {{ 'Total payé en carte cadeau'|trans({}, 'theliagiftcard') }} :
-                {{ total_spend_amount|number_format(2, '.', ' ') }} {{ currency_symbol }}
-            </h3>
-        </ul>
+    <div class="card-body">
+        {% if lines is not empty %}
+            <ul class="list-unstyled mb-2">
+                {% for line in lines %}
+                    <li>
+                        {{ 'Montant Carte Cadeau %code : %amount'|trans({
+                            '%code': line.code,
+                            '%amount': line.spend_amount|number_format(2, '.', ' ') ~ ' ' ~ currency_symbol
+                        }, 'theliagiftcard') }}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+        <p class="fw-bold mb-0">
+            {{ 'Total payé en carte cadeau'|trans({}, 'theliagiftcard') }} :
+            {{ total_spend_amount|number_format(2, '.', ' ') }} {{ currency_symbol }}
+        </p>
     </div>
 </div>

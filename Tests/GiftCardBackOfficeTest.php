@@ -330,6 +330,20 @@ final class GiftCardBackOfficeTest extends GiftCardTestCase
         self::assertStringContainsString('<th>Bestellstatus</th>', $page);
     }
 
+    public function testTheTotalOfTheOrderBlockIsBoldTextOfTheBodySize(): void
+    {
+        $fixtures = $this->createFixtureFactory();
+        $order = $fixtures->order($fixtures->customer($fixtures->customerTitle()));
+        $giftCard = $this->giftCard();
+        (new GiftCardOrder())->setGiftCardId($giftCard->getId())->setOrderId($order->getId())->setSpendAmount('12.5')->setInitialPostage('0')->save();
+
+        [, , $orderBlock] = $this->renderConfigurationScreen('fr_FR', $order->getId());
+
+        self::assertMatchesRegularExpression('#<p class="fw-bold mb-0">\s*Total payé en carte cadeau :\s*12\.50#u', $orderBlock);
+        self::assertDoesNotMatchRegularExpression('#<h[1-6]#', $orderBlock, 'the total reads at the size of the order totals, not as a heading');
+        self::assertDoesNotMatchRegularExpression('#<ul[^>]*>(?:(?!</ul>).)*<(?!/?li\b)[a-z]#is', $orderBlock, 'the list of cards holds list items only');
+    }
+
     public function testARowGivenBackIsShownAsSpentNeitherOnTheOrderNorInTheHistoryOfTheCard(): void
     {
         $fixtures = $this->createFixtureFactory();
