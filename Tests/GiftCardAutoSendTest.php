@@ -8,6 +8,7 @@ declare(strict_types=1);
 namespace TheliaGiftCard\Tests;
 
 use Symfony\Component\Mime\Email;
+use Symfony\Component\Mime\Part\DataPart;
 use Thelia\Core\Event\Order\OrderEvent;
 use Thelia\Model\ConfigQuery;
 use Thelia\Model\Order;
@@ -231,11 +232,20 @@ final class GiftCardAutoSendTest extends GiftCardTestCase
     }
 
     /**
+     * The e-mails that carry a card, as a PDF. A shop sends other mails when an order is paid (the
+     * payment confirmation of its payment module), which are not the business of this test.
+     *
      * @return list<Email>
      */
     private function sentEmails(): array
     {
-        return array_values(array_filter(self::getMailerMessages(), static fn (object $message): bool => $message instanceof Email));
+        return array_values(array_filter(
+            self::getMailerMessages(),
+            static fn (object $message): bool => $message instanceof Email && [] !== array_filter(
+                $message->getAttachments(),
+                static fn (DataPart $part): bool => 'application/pdf' === $part->getContentType(),
+            ),
+        ));
     }
 
     private function currentSession(): \Thelia\Core\HttpFoundation\Session\Session
